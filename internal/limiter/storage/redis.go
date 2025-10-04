@@ -38,6 +38,9 @@ func NewRedisStorage(ctx context.Context, addr, keyPrefix string) (*RedisStorage
 
 // CheckAndUpdate checks if a request is allowed and updates the counter
 func (rs *RedisStorage) CheckAndUpdate(ctx context.Context, key string, limit int64, window time.Duration, cost int64) (*Result, error) {
+	// NOTE: This implementation has a small race condition between INCR and EXPIRE.
+	// See ADR-0001 for rationale on accepting this trade-off.
+	// Future version will use Lua scripts for true atomicity.
 
 	// Build Redis key
 	redisKey := rs.formatKey(key)

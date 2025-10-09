@@ -1,4 +1,4 @@
-package storage
+package redis
 
 import (
 	"context"
@@ -6,9 +6,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/AaronBrownDev/distributed-rate-limiter/internal/storage"
 	"github.com/redis/go-redis/v9"
 )
 
+// RedisStorage implements storage.RateLimitStorage
 type RedisStorage struct {
 	client    *redis.Client
 	keyPrefix string
@@ -37,7 +39,7 @@ func NewRedisStorage(ctx context.Context, addr, keyPrefix string) (*RedisStorage
 }
 
 // CheckAndUpdate checks if a request is allowed and updates the counter
-func (rs *RedisStorage) CheckAndUpdate(ctx context.Context, key string, limit int64, window time.Duration, cost int64) (*Result, error) {
+func (rs *RedisStorage) CheckAndUpdate(ctx context.Context, key string, limit int64, window time.Duration, cost int64) (*storage.Result, error) {
 	// NOTE: This implementation has a small race condition between INCR and EXPIRE.
 	// See ADR-0001 for rationale on accepting this trade-off.
 	// Future version will use Lua scripts for true atomicity.
@@ -76,7 +78,7 @@ func (rs *RedisStorage) CheckAndUpdate(ctx context.Context, key string, limit in
 		remaining = 0
 	}
 
-	return &Result{
+	return &storage.Result{
 		Allowed:   allowed,
 		Remaining: remaining,
 		ResetAt:   resetAt,
@@ -85,7 +87,7 @@ func (rs *RedisStorage) CheckAndUpdate(ctx context.Context, key string, limit in
 }
 
 // GetStatus checks current status without modifying the counter
-func (rs *RedisStorage) GetStatus(ctx context.Context, key string, limit int64) (*Result, error) {
+func (rs *RedisStorage) GetStatus(ctx context.Context, key string, limit int64) (*storage.Result, error) {
 	// TODO: Store limit in Redis. Take out of parameter.
 
 	// Build Redis key
@@ -96,7 +98,7 @@ func (rs *RedisStorage) GetStatus(ctx context.Context, key string, limit int64) 
 	if err == redis.Nil {
 		// Key doesn't exist so just give default result
 		// TODO: Look into alternative approaches for determining ResetAt if needed
-		return &Result{
+		return &storage.Result{
 			Allowed:   true,
 			Remaining: limit,
 			ResetAt:   time.Now(),
@@ -126,7 +128,7 @@ func (rs *RedisStorage) GetStatus(ctx context.Context, key string, limit int64) 
 	}
 	resetAt := time.Now().Add(ttl)
 
-	return &Result{
+	return &storage.Result{
 		Allowed:   allowed,
 		Remaining: remaining,
 		ResetAt:   resetAt,

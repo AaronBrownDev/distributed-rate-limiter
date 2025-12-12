@@ -26,7 +26,8 @@
 				"premparihar.gotestexplorer",
 				"ms-kubernetes-tools.vscode-kubernetes-tools",
 				"lunuan.kubernetes-templates",
-				"esbenp.prettier-vscode"
+				"esbenp.prettier-vscode",
+				"DrBlury.protobuf-vsc"
 			]
 		}
 	}

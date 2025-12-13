@@ -9,10 +9,11 @@
 	"features": {
 		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
 		"ghcr.io/devcontainers/features/git:1": {},
-		"ghcr.io/devcontainers/features/github-cli:1": {}
+		"ghcr.io/devcontainers/features/github-cli:1": {},
+		"ghcr.io/devcontainers-extra/features/protoc:1": {}
 	},
 	"forwardPorts": [],
-	"postCreateCommand": "go mod tidy",
+	"postCreateCommand": "bash .devcontainer/setup.sh",
 	"customizations": {
 		"vscode": {
 			"extensions": [

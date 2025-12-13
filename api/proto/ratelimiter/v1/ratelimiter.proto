@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package ratelimiter.v1;
+
+// Go package path for generated code
+option go_package = "github.com/AaronBrownDev/distributed-rate-limiter/gen/ratelimiter/v1;ratelimiterv1";
+
+import "google/protobuf/timestamp.proto";
+
+// RateLimiterService provides distributed rate limiting functionality
+service RateLimiterService {
+
+  // Check if request is allowed.
+  rpc CheckRateLimit(CheckRateLimitRequest) returns (CheckRateLimitResponse);
+
+  // Gets current rate limit status without modifying tokens.
+  rpc GetStatus(GetStatusRequest) returns (GetStatusResponse);
+
+  // Resets the rate limit window for a specific key.
+  rpc ResetLimit(ResetLimitRequest) returns (ResetLimitResponse);
+
+  // TODO: Create a configure method for dynamically configuring limits
+
+}
+
+// 
+message CheckRateLimitRequest {
+  // field type, field name, field number
+  // Identifier for the rate limit.
+  string key = 1;
+
+  // The rate limit to check against.
+  int64 limit = 2;
+  
+  // Duration of the rate limit window in seconds
+  int64 window_seconds = 3;
+  
+  // Number of tokens to consume for this request
+  int64 cost = 4;
+}
+
+message CheckRateLimitResponse {
+  // Whether the next request would be allowed.
+  bool allowed = 1;
+
+  // Number of requests remaining before hitting the limit.
+  int64 remaining = 2;
+
+  // Time when the rate limit window resets.
+  google.protobuf.Timestamp reset_at = 3;
+
+  // Maximum requests allowed in the window.
+  int64 limit = 4;
+
+  // Cooldown before retrying.
+  int64 retry_after_seconds = 5;
+}
+
+message GetStatusRequest {
+  // Identifier for the rate limit.
+  string key = 1;
+
+  // The rate limit to check against.
+  int64 limit = 2; // TODO: Might eventually remove once the GetStatus func no longer takes in a limit argument
+}
+
+message GetStatusResponse {
+  // Whether the next request would be allowed.
+  bool allowed = 1;
+
+  // Current number of requests made in the window.
+  int64 current = 2;
+  
+  // Number of requests remaining before hitting the limit.
+  int64 remaining = 3;
+  
+  // Time when the rate limit window resets.
+  google.protobuf.Timestamp reset_at = 4;
+  
+  // Maximum requests allowed in the window.
+  int64 limit = 5;
+}
+
+message ResetLimitRequest {
+  // Identifier for the rate limit to reset.
+  string key = 1;
+}
+
+message ResetLimitResponse {
+  // Does not need an error field.
+  // Instead will use gRPC status codes for errors.
+}

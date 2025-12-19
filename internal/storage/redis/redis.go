@@ -2,7 +2,6 @@ package redis
 
 import (
 	"context"
-	"errors"
 	"strconv"
 	"time"
 
@@ -149,7 +148,7 @@ func (rs *RedisStorage) Reset(ctx context.Context, key string) error {
 	}
 
 	if keysDeleted == 0 {
-		return errors.New("no key was deleted")
+		return storage.ErrKeyNotFound
 	}
 	return nil
 }

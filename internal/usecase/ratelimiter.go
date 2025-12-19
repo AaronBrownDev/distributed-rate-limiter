@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"errors"
 	"strings"
 	"time"
 
@@ -18,17 +17,6 @@ func NewRateLimiterService(storage storage.RateLimitStorage) *RateLimiterService
 		storage: storage,
 	}
 }
-
-var (
-	// ErrInvalidKey will be returned is key is empty
-	ErrInvalidKey = errors.New("input key is invalid")
-	// ErrInvalidLimit will be returned if limit <= 0
-	ErrInvalidLimit = errors.New("input limit is invalid")
-	// ErrInvalidWindow will be returned if window <= 0
-	ErrInvalidWindow = errors.New("input window is invalid")
-	// ErrInvalidCost will be returned if cost <= 0
-	ErrInvalidCost = errors.New("input cost is invalid")
-)
 
 // CheckRateLimit validates input and checks if a request is allowed and updates the counter
 func (rls *RateLimiterService) CheckRateLimit(ctx context.Context, key string, limit int64, window time.Duration, cost int64) (*storage.Result, error) {

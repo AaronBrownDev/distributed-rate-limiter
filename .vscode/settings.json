@@ -1,3 +1,7 @@
 {
-    "protobuf.protoc.path": "/usr/local/bin/protoc"
+    "protobuf.protoc.path": "/usr/local/bin/protoc",
+    "go.buildTags": "integration",
+    "gopls": {
+        "build.buildFlags": ["-tags=integration"]
+    }
 }
